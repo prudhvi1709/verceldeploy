@@ -1,16 +1,14 @@
 import json
+import os
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
-# Hardcode the student marks data
-STUDENT_MARKS = {
-    "u": 5,
-    "uEq4XSDq2p": 9,
-    "pyHLbdLvxn": 19,
-    "dAD7K": 15,
-    "mRXOtnM8": 42
-    # Add other student marks here
-}
+# Load student marks from a JSON file
+def load_student_marks():
+    with open('q-vercel-python.json', 'r') as file:
+        return json.load(file)
+
+STUDENT_MARKS = load_student_marks()  # Load marks dynamically from the JSON file
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -28,11 +26,16 @@ class handler(BaseHTTPRequestHandler):
             # Get student names from the 'name' parameter
             student_names = query_params.get('name', [])
 
-            # Fetch marks for the requested students
-            marks = [STUDENT_MARKS.get(name, 'Student not found') for name in student_names]
+            if not student_names:
+                # If no names provided, return an empty marks array
+                response = {"marks": []}
+            else:
+                # Fetch marks for the requested students
+                # Returns "Student not found" for unknown students
+                marks = [STUDENT_MARKS.get(name, "Student not found") for name in student_names]
+                response = {"marks": marks}
 
             # Return the JSON response
-            response = {"marks": marks}
             self.wfile.write(json.dumps(response).encode('utf-8'))
 
         except Exception as e:
