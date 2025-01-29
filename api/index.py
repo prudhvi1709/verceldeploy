@@ -1,5 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler
+from urllib.parse import parse_qs, urlparse
 
 # Function to load marks from the JSON file
 def load_marks():
@@ -14,18 +15,25 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')  # Allow all origins
         self.end_headers()
 
-        # Parse the query parameters
-        query_params = self.path.split('?')[1]
-        names = query_params.split('&')
-        student_names = [name.split('=')[1] for name in names]
+        try:
+            # Parse the URL and query parameters
+            parsed_url = urlparse(self.path)
+            query_params = parse_qs(parsed_url.query)
 
-        # Load student marks from the JSON file
-        student_marks = load_marks()
+            # Get student names from the 'name' parameter
+            student_names = query_params.get('name', [])
 
-        # Fetch marks for the requested students
-        marks = [student_marks.get(name, 'Student not found') for name in student_names]
+            # Load student marks from the JSON file
+            student_marks = load_marks()
 
-        # Return the JSON response
-        response = {"marks": marks}
-        self.wfile.write(json.dumps(response).encode('utf-8'))
-        return
+            # Fetch marks for the requested students
+            marks = [student_marks.get(name, 'Student not found') for name in student_names]
+
+            # Return the JSON response
+            response = {"marks": marks}
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+
+        except Exception as e:
+            # Handle any errors
+            error_response = {"error": str(e)}
+            self.wfile.write(json.dumps(error_response).encode('utf-8'))
