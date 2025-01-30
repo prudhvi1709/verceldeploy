@@ -11,11 +11,20 @@ def load_student_marks():
 STUDENT_MARKS = load_student_marks()  # Load marks dynamically from the JSON file
 
 class handler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
     def do_GET(self):
         # Enable CORS
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')  # Allow all origins
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')  # Allow specific methods
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')  # Allow specific headers
         self.end_headers()
 
         try:
