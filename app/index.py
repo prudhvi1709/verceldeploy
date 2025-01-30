@@ -27,3 +27,8 @@ async def get_marks(name: list[str] = Query(None)):
         marks = [s["marks"] for s in students_data if s["name"] in name]
         return {"marks": marks}
     return {"marks": []}
+
+# Add this at the end of the file
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8002)
