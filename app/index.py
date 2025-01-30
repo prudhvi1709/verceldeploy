@@ -26,6 +26,9 @@ async def get_marks(name: list[str] = Query(None)):
     - `/api?name=ho8ePmxFs&name=Zfmi` -> {"marks": [70, 55]}
     """
     if name:
-        marks = [s["marks"] for s in students_data if s["name"] in name]
+        # Create a dictionary to map names to marks
+        marks_dict = {s["name"]: s["marks"] for s in students_data}
+        # Retrieve marks in the order of names provided
+        marks = [marks_dict[n] for n in name if n in marks_dict]
         return {"marks": marks}
     return {"marks": []}
